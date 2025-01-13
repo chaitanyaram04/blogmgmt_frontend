@@ -13,6 +13,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 
 const NewBlog = () => {
+  const apiUrl = process.env.REACT_APP_API_URL;
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [error, setError] = useState('');
@@ -24,7 +25,7 @@ const NewBlog = () => {
     const token = localStorage.getItem('token'); 
     try {
       await axios.post(
-        'http://127.0.0.1:3000/blogs',
+        `${apiUrl}/blogs`,
         { blog: { title, description: content, status } }, 
         {
           headers: {

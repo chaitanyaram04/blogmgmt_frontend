@@ -13,6 +13,7 @@ import {
 } from '@mui/material';
 
 const Signin = () => {
+  const apiUrl = process.env.REACT_APP_API_URL;
   const navigate = useNavigate();
   const { setIsLoggedIn } = useAuth();
   const [formData, setFormData] = useState({
@@ -31,7 +32,7 @@ const Signin = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('http://127.0.0.1:3000/signin', formData);
+      const response = await axios.post(`${apiUrl}/signin`, formData);
       const { token, user } = response.data;
       localStorage.setItem('token', token);
       localStorage.setItem('user', JSON.stringify(user));

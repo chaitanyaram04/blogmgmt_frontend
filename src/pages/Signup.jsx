@@ -17,6 +17,7 @@ axios.defaults.withCredentials = true;
 
 
 const Signup = () => {
+  const apiUrl = process.env.REACT_APP_API_URL;
   const { setIsLoggedIn } = useAuth();
 
   const navigate = useNavigate();
@@ -42,7 +43,7 @@ const Signup = () => {
     try {
      const response = await axios({
       method: 'post',
-      url: "http://localhost:3000/signup",
+      url: `${apiUrl}/signup`,
       headers: { 'Content-Type': 'application/json',}, 
       data: formData
     });

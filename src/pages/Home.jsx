@@ -19,7 +19,7 @@ const Home = () => {
   const handleClick = () => {
     navigate('/newblog');
   };
-
+  const apiUrl = process.env.REACT_APP_API_URL;
   return (
     <Container>
       {isLoggedIn && (
@@ -43,7 +43,7 @@ const Home = () => {
           </Grid>
         </>
       )}
-      <BlogList url="http://127.0.0.1:3000/blogs" title="All blogs" />
+      <BlogList url={`${apiUrl}/blogs`} title="All blogs" />
     </Container>
   );
 };

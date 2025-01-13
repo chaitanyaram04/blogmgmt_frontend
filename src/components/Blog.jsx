@@ -21,6 +21,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import { useAuth } from '../context/AuthContext';
 
 const Blog = () => {
+  const apiUrl = process.env.REACT_APP_API_URL;
   const { id } = useParams();
   const navigate = useNavigate();
   const { isLoggedIn } = useAuth();
@@ -43,7 +44,7 @@ const Blog = () => {
   useEffect(() => {
     const fetchBlog = async () => {
       try {
-        const response = await axios.get(`http://127.0.0.1:3000/blogs/${id}`);
+        const response = await axios.get(`${apiUrl}/blogs/${id}`);
         console.log(response.data);
         setBlog(response.data);
         setUserLiked(response.data.user_liked); 
@@ -59,7 +60,7 @@ const Blog = () => {
   useEffect(() => {
     const fetchComments = async () => {
       try {
-        const response = await axios.post(`http://127.0.0.1:3000/comments/all`, {
+        const response = await axios.post(`${apiUrl}/comments/all`, {
            blog_id: id, offset: 0, limit: commentsPerPage 
         });
         console.log(response.data);
@@ -98,14 +99,14 @@ const Blog = () => {
       let response;
       if (userLiked) {
         console.log(likeId);
-        response = await axios.post(`http://127.0.0.1:3000/likes/${likeId}`, {blog_id :id}, {
+        response = await axios.post(`${apiUrl}/likes/${likeId}`, {blog_id :id}, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
         setBlog({ ...blog, likes_count: blog.likes_count - 1 });
       } else {
-        response = await axios.post(`http://127.0.0.1:3000/likes`, { blog_id: id },
+        response = await axios.post(`${apiUrl}/likes`, { blog_id: id },
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -136,23 +137,27 @@ const Blog = () => {
       const token = localStorage.getItem('token');
       let response;
       if (commentUserLiked[commentId]) {
-        response = await axios.post(`http://127.0.0.1:3000/likes/${commentLikeId[commentId]}`, { comment_id: commentId }, {
+        console.log("Hello from like comment");
+        response = await axios.post(`${apiUrl}/likes/${commentLikeId[commentId]}`, { comment_id: commentId }, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
-        setComments(comments.map((c) =>
-          c.id === commentId ? { ...c, likes: c.likes - 1, user_liked: false } : c
+        console.log(response.data);
+        setVisibleComments(comments.map((c) =>
+          c.id === commentId ? { ...c, likes: response.data.likes, user_liked: false } : c
         ));
         setCommentUserLiked({ ...commentUserLiked, [commentId]: false });
       } else {
-        response = await axios.post(`http://127.0.0.1:3000/likes`, { comment_id: commentId }, {
+        console.log("Else");
+        response = await axios.post(`${apiUrl}/likes`, { comment_id: commentId }, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
-        setComments(comments.map((c) =>
-          c.id === commentId ? { ...c, likes: c.likes + 1, user_liked: true, like_id: response.data.like_id } : c
+        console.log(response.data);
+        setVisibleComments(comments.map((c) =>
+          c.id === commentId ? { ...c, likes: response.data.likes, user_liked: true, like_id: response.data.like_id } : c
         ));
         setCommentUserLiked({ ...commentUserLiked, [commentId]: true });
         setCommentLikeId({ ...commentLikeId, [commentId]: response.data.like_id });
@@ -173,7 +178,7 @@ const Blog = () => {
     }
 
     try {
-      const response = await axios.post(`http://127.0.0.1:3000/comments`, { content: comment, blog_id: id }, {
+      const response = await axios.post(`${apiUrl}/comments`, { content: comment, blog_id: id }, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`,
         },
@@ -198,7 +203,7 @@ const Blog = () => {
   const handleUpdateComment = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.put(`http://127.0.0.1:3000/comments/${editingComment.id}`, { content: editingContent }, {
+      const response = await axios.put(`${apiUrl}/comments/${editingComment.id}`, { content: editingContent }, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -215,11 +220,10 @@ const Blog = () => {
   const handleDeleteComment = async (commentId) => {
     try {
       const token = localStorage.getItem('token');
-      await axios.delete(`http://127.0.0.1:3000/comments/${commentId}`, {
+      await axios.post(`${apiUrl}/comments/${commentId}`, {blog_id  : id}, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
-        data: { blog_id: id }
       });
       setComments(comments.filter((comment) => comment.id !== commentId));
       setVisibleComments(comments.filter((comment) => comment.id !== commentId).slice(0, (page + 1) * commentsPerPage));
@@ -235,7 +239,7 @@ const Blog = () => {
   const handleDelete = async () => {
     if (window.confirm('Are you sure you want to delete this blog?')) {
       try {
-        await axios.delete(`http://127.0.0.1:3000/blogs/${id}`, {
+        await axios.delete(`${apiUrl}/blogs/${id}`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('token')}`,
           },
@@ -252,7 +256,7 @@ const Blog = () => {
     const offset = nextPage * commentsPerPage;
     
     try {
-      const response = await axios.post(`http://127.0.0.1:3000/comments/all`, {
+      const response = await axios.post(`${apiUrl}/comments/all`, {
         blog_id: id, limit: offset, offset: commentsPerPage 
       });
       console.log(response.data);
@@ -304,41 +308,40 @@ const Blog = () => {
           <Box display="flex" alignItems="center" sx={{ mt: 2 }}>
             {isLoggedIn ? (
               <IconButton onClick={handleLike} color={userLiked ? 'primary' : 'default'}>
-                <ThumbUpIcon /> {blog.likes_count}
+                <ThumbUpIcon /> <Box component="span" sx={{ ml: 1 }}>{blog.likes_count}</Box>
               </IconButton>
             ) : (
-              <Typography variant="body1">
-              <ThumbUpIcon fontSize="small" /> {blog.likes_count}
-            </Typography>
+              <Box display="flex" alignItems="center">
+                <ThumbUpIcon fontSize="small" /> <Box component="span" sx={{ ml: 1 }}>{blog.likes_count}</Box>
+              </Box>
             )}
           </Box>
           <Box sx={{ mt: 4 }}>
             <Typography variant="h5" gutterBottom>
-              Comments
+              Comments ({blog.comments_count})
             </Typography>
             <List>
               {visibleComments.map((comment) => (
                 <ListItem key={comment.id}>
-                  <Grid container spacing={2}>
-                    <Grid item xs={10}>
+                  <Grid container spacing={2} alignItems="center">
+                    <Grid item xs={8}>
                       <ListItemText
                         primary={comment.content}
                         secondary={`by ${comment.user_name}`}
                       />
                     </Grid>
-                    <Grid item xs={2} container justifyContent="flex-end" alignItems="center">
-                      <Box display="flex" alignItems="center" sx={{ mt: 2 }}>
-                          {isLoggedIn ? (
-                            <IconButton onClick={() => handleLikeComment(comment.id)} color={commentUserLiked[comment.id] ? 'primary' : 'default'}>
-                              <ThumbUpIcon /> {comment.likes_count}
-                            </IconButton>
-                          ) : (
-                            <Typography variant="body1">
-                              <ThumbUpIcon fontSize="small" /> {comment.likes_count}
-                            </Typography>
-                          )}
+                    <Grid item xs={4} container justifyContent="flex-end" alignItems="center">
+                      <Box display="flex" alignItems="center">
+                        {isLoggedIn ? (
+                          <IconButton onClick={() => handleLikeComment(comment.id)} color={commentUserLiked[comment.id] ? 'primary' : 'default'}>
+                            <ThumbUpIcon /> <Box component="span" sx={{ ml: 1 }}>{comment.likes}</Box>
+                          </IconButton>
+                        ) : (
+                          <Box display="flex" alignItems="center">
+                            <ThumbUpIcon fontSize="small" /> <Box component="span" sx={{ ml: 1 }}>{comment.likes}</Box>
+                          </Box>
+                        )}
                       </Box>
-                      
                       {user && (user.id === comment.user_id || user.id === blog.user_id) && (
                         <>
                           <IconButton onClick={() => handleEditComment(comment)}>
@@ -354,7 +357,7 @@ const Blog = () => {
                 </ListItem>
               ))}
             </List>
-            {visibleComments.length <= comments.length  && visibleComments.length > 5 && (
+            {visibleComments.length < blog.comments_count && (
               <Box display="flex" justifyContent="center" sx={{ mt: 2 }}>
                 <Button variant="contained" onClick={loadMoreComments}>
                   Read More
@@ -395,7 +398,7 @@ const Blog = () => {
             )}
           </Box>
         </>
-    }
+      }
     </Container>
   );
 };

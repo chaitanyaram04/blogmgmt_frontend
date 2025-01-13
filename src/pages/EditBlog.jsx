@@ -25,11 +25,11 @@ const EditBlog = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(true);
-
+  const apiUrl = process.env.REACT_APP_API_URL;
   useEffect(() => {
     const fetchBlog = async () => {
       try {
-        const response = await axios.get(`http://127.0.0.1:3000/blogs/${id}`);
+        const response = await axios.get(`${apiUrl}/blogs/${id}`);
         const blog = response.data;
         setTitle(blog.title);
         setDescription(blog.description);
@@ -61,7 +61,7 @@ const EditBlog = () => {
     }
     try {
       await axios.post(
-        `http://127.0.0.1:3000/blogs/${id}`,
+        `${apiUrl}/blogs/${id}`,
         { blog: updatedBlog },
         {
           headers: {
