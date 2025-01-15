@@ -9,7 +9,6 @@ import MenuItem from '@mui/material/MenuItem';
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useLocation } from 'react-router-dom';
-import SearchIcon from '@mui/icons-material/Search';
 import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
 import axios from 'axios';
@@ -173,19 +172,10 @@ export default function Navbar() {
                             {...params}
                             placeholder="Search blogs..."
                             size="small"
-                            sx={{ marginLeft: 2, width: 300, border: '2px solid #000' }} 
+                            sx={{ marginLeft: 2, marginRight: 2, width: 300, border: '2px solid #000' }} 
                             />
                         )}  
                     />
-
-                    
-                        <IconButton 
-                            color="inherit"
-                            aria-label="search"
-                        
-                        >
-                            <SearchIcon sx={{ marginRight:1 }} />
-                        </IconButton>
 
                     {isLoggedIn ? (
                         <Button color="inherit" onClick={handleSignOut}>Signout</Button>
