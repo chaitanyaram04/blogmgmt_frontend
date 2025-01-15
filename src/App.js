@@ -11,6 +11,9 @@ import Archive from './pages/Archive';
 import MyBlogs from './pages/MyBlogs';
 import NewBlog from './pages/NewBlog';
 import EditBlog from './pages/EditBlog';
+import UserBlog from './pages/UserBlog';
+import Comments from './pages/Comments';
+
 const App = () => {
   return (
     <AuthProvider>
@@ -26,7 +29,8 @@ const App = () => {
         <Route path="/newblog" element={<NewBlog />} />
         <Route path="/blog/:id" element={<Blog />} />
         <Route path="/editblog/:id" element={<EditBlog />} />
-
+        <Route path="/user/:id/blogs" element = {<UserBlog />} />
+        <Route path="/mycomments" element={<Comments />} />
       </Routes>
     </BrowserRouter>
     </AuthProvider>

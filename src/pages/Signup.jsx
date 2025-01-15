@@ -59,7 +59,7 @@ const Signup = () => {
      localStorage.setItem('user', JSON.stringify(user));
      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
      setIsLoggedIn(true);
-     navigate('/');
+     navigate(-2);
    } catch (err) {
       if (err.response && err.response.data.errors) {
         setError(err.response.data.errors.join(', ')); 
@@ -117,6 +117,13 @@ const Signup = () => {
               sx={{ mt: 3 }}
             >
               Sign Up
+            </Button>
+            <Button
+              onClick={() => navigate('/signin')}
+              fullWidth
+              sx={{ mt: 2 }}
+            >
+              Login into existing account? Sign in
             </Button>
           </form>
         </Paper>

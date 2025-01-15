@@ -40,14 +40,13 @@ const Signin = () => {
       axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
       setIsLoggedIn(true);
       
-      navigate('/');
+      navigate(-1);
     } catch (err) {
-        if (err.response && err.response.data.errors) {
-            console.log(err.response.data.errors);
-            setError(err.response.data.errors); 
-          } else {
-            setError('An unexpected error occurred. Please try again later.');
-          };
+      if (err.response && err.response.data.errors) {
+        setError(err.response.data.errors.join(' '));
+      } else {
+        setError('An unexpected error occurred. Please try again later.');
+      }
     }
   };
 
@@ -90,6 +89,13 @@ const Signin = () => {
               sx={{ mt: 3 }}
             >
               Sign In
+            </Button>
+            <Button
+              onClick={() => navigate('/signup')}
+              fullWidth
+              sx={{ mt: 2 }}
+            >
+              Don’t have an account? Sign up
             </Button>
           </form>
         </Paper>

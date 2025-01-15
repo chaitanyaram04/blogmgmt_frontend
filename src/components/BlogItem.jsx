@@ -7,7 +7,12 @@ const BlogItem = ({ blog }) => {
   const maxDescriptionLength = 100;
 
   const handleReadMore = () => {
-    navigate(`/blog/${blog.id}`);
+    const encodedId = btoa(blog.id); 
+    navigate(`/blog/${encodedId}`);
+  };
+
+  const encodeBlogId = (id) => {
+    return btoa(id); 
   };
 
   return (
@@ -17,8 +22,14 @@ const BlogItem = ({ blog }) => {
           {blog.title}
         </Typography>
         <Box sx={{ mt: 1 }}>
-          <Typography variant="body2" color="text.secondary">
-            by {blog.user_name}
+         
+          <Typography
+            variant="body2"
+            color="primary"
+            onClick={() => navigate(`/user/${encodeBlogId(blog.user_id)}/blogs`)}
+            sx={{ cursor: 'pointer', display: 'inline' }}
+          >
+            {blog.user_name}
           </Typography>
         </Box>
         <Typography variant="body2" color="text.secondary" >

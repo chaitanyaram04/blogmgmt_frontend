@@ -18,22 +18,27 @@ const EditBlog = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { id } = useParams();
+  const decodedId = atob(id);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [status, setStatus] = useState('');
   const [publish, setPublish] = useState(false);
   const [error, setError] = useState('');
+  const [is_deleted, setDelete] = useState('');
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(true);
   const apiUrl = process.env.REACT_APP_API_URL;
   useEffect(() => {
     const fetchBlog = async () => {
       try {
-        const response = await axios.get(`${apiUrl}/blogs/${id}`);
+        const response = await axios.get(`${apiUrl}/blogs/${decodedId}`);
         const blog = response.data;
+        console.log(response.data);
         setTitle(blog.title);
         setDescription(blog.description);
         setStatus(blog.status);
+        setDelete(blog.is_deleted);
+        console.log(is_deleted);
         setLoading(false);
       } catch (err) {
         setError('Failed to fetch blog');
@@ -46,11 +51,13 @@ const EditBlog = () => {
       setTitle(blog.title);
       setDescription(blog.description);
       setStatus(blog.status);
+      setDelete(blog.is_deleted);
       setLoading(false);
     } else {
       fetchBlog();
     }
-  }, [id, location.state]);
+  }, [decodedId
+    , location.state]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -58,10 +65,12 @@ const EditBlog = () => {
     const updatedBlog = { title, description };
     if (publish) {
       updatedBlog.status = 'published';
+      updatedBlog.is_deleted = 'false';
     }
     try {
       await axios.post(
-        `${apiUrl}/blogs/${id}`,
+        `${apiUrl}/blogs/${decodedId
+        }`,
         { blog: updatedBlog },
         {
           headers: {
@@ -114,7 +123,7 @@ const EditBlog = () => {
               multiline
               rows={4}
             />
-            {status === 'drafted' && (
+            {(status === 'drafted' || is_deleted)&& (
               <FormControlLabel
                 control={
                   <Checkbox
@@ -129,6 +138,7 @@ const EditBlog = () => {
             <Button
               type="submit"
               fullWidth
+              th
               variant="contained"
               color="primary"
               sx={{ mt: 3 }}

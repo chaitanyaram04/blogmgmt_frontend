@@ -23,6 +23,7 @@ import { useAuth } from '../context/AuthContext';
 const Blog = () => {
   const apiUrl = process.env.REACT_APP_API_URL;
   const { id } = useParams();
+  const decodedId = atob(id);
   const navigate = useNavigate();
   const { isLoggedIn } = useAuth();
   const [blog, setBlog] = useState(null);
@@ -44,7 +45,7 @@ const Blog = () => {
   useEffect(() => {
     const fetchBlog = async () => {
       try {
-        const response = await axios.get(`${apiUrl}/blogs/${id}`);
+        const response = await axios.get(`${apiUrl}/blogs/${decodedId}`);
         console.log(response.data);
         setBlog(response.data);
         setUserLiked(response.data.user_liked); 
@@ -55,13 +56,13 @@ const Blog = () => {
       }
     };
     fetchBlog();
-  }, [id]);
+  }, [decodedId]);
 
   useEffect(() => {
     const fetchComments = async () => {
       try {
         const response = await axios.post(`${apiUrl}/comments/all`, {
-           blog_id: id, offset: 0, limit: commentsPerPage 
+           blog_id: decodedId, offset: 0, limit: commentsPerPage 
         });
         console.log(response.data);
         setComments(response.data);
@@ -79,7 +80,7 @@ const Blog = () => {
       }
     };
     fetchComments();
-  }, [id, commentsPerPage]);
+  }, [decodedId, commentsPerPage]);
 
   useEffect(() => {
     if (isLoggedIn) {
@@ -99,14 +100,14 @@ const Blog = () => {
       let response;
       if (userLiked) {
         console.log(likeId);
-        response = await axios.post(`${apiUrl}/likes/${likeId}`, {blog_id :id}, {
+        response = await axios.post(`${apiUrl}/likes/${likeId}`, {blog_id :decodedId}, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
         setBlog({ ...blog, likes_count: blog.likes_count - 1 });
       } else {
-        response = await axios.post(`${apiUrl}/likes`, { blog_id: id },
+        response = await axios.post(`${apiUrl}/likes`, { blog_id: decodedId },
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -178,13 +179,13 @@ const Blog = () => {
     }
 
     try {
-      const response = await axios.post(`${apiUrl}/comments`, { content: comment, blog_id: id }, {
+      const response = await axios.post(`${apiUrl}/comments`, { content: comment, blog_id: decodedId }, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`,
         },
       });
-      setComments([...comments, response.data]);
-      setVisibleComments([...comments, response.data].slice(0, (page + 1) * commentsPerPage));
+      setComments([response.data, ...comments]);
+      setVisibleComments([response.data, ...visibleComments].slice(0, (page + 1) * commentsPerPage));
       setComment('');
     } catch (err) {
       if (err.response && err.response.data.errors) {
@@ -220,26 +221,28 @@ const Blog = () => {
   const handleDeleteComment = async (commentId) => {
     try {
       const token = localStorage.getItem('token');
-      await axios.post(`${apiUrl}/comments/${commentId}`, {blog_id  : id}, {
+      await axios.post(`${apiUrl}/comments/${commentId}`, {blog_id  : decodedId}, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
       setComments(comments.filter((comment) => comment.id !== commentId));
       setVisibleComments(comments.filter((comment) => comment.id !== commentId).slice(0, (page + 1) * commentsPerPage));
+      blog.comments_count -= 1;
     } catch (err) {
       setError('Failed to delete comment');
     }
   };
 
   const handleEdit = () => {
-    navigate(`/editblog/${id}`, { state: { blog } });
+    const encodedId = btoa(decodedId); 
+    navigate(`/editblog/${encodedId}`, { state: { blog } });
   };
 
   const handleDelete = async () => {
     if (window.confirm('Are you sure you want to delete this blog?')) {
       try {
-        await axios.delete(`${apiUrl}/blogs/${id}`, {
+        await axios.delete(`${apiUrl}/blogs/${decodedId}`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('token')}`,
           },
@@ -257,7 +260,7 @@ const Blog = () => {
     
     try {
       const response = await axios.post(`${apiUrl}/comments/all`, {
-        blog_id: id, limit: offset, offset: commentsPerPage 
+        blog_id: decodedId, limit: offset, offset: commentsPerPage 
       });
       console.log(response.data);
       setVisibleComments([...visibleComments, ...response.data]);
@@ -282,6 +285,9 @@ const Blog = () => {
       </Container>
     );
   }
+  const handleLikeWithNoLogin = () => {
+    navigate('/signin');
+  }
 
   return (
     <Container sx={{ py: 4 }}>
@@ -289,16 +295,19 @@ const Blog = () => {
         <Typography variant="h4" gutterBottom>
           {blog.title}
         </Typography>
-        {isLoggedIn && !blog.is_deleted && (user.role === 'admin' || user.id === blog.user_id) && (
+       
           <Box>
+          {isLoggedIn && (user.role === 'admin' || user.id === blog.user_id) && (
             <IconButton onClick={handleEdit}>
               <EditIcon />
-            </IconButton>
+            </IconButton>)}
+            {isLoggedIn && !blog.is_deleted && (user.role === 'admin' || user.id === blog.user_id) && (
             <IconButton onClick={handleDelete} sx={{ color: 'red' }}>
               <DeleteIcon />
             </IconButton>
+            )}
           </Box>
-        )}
+        
       </Box>
       <Typography variant="body1" gutterBottom sx={{ whiteSpace: 'pre-wrap' }}>
         {blog.description}
@@ -312,7 +321,9 @@ const Blog = () => {
               </IconButton>
             ) : (
               <Box display="flex" alignItems="center">
+                 <IconButton onClick={handleLikeWithNoLogin}>
                 <ThumbUpIcon fontSize="small" /> <Box component="span" sx={{ ml: 1 }}>{blog.likes_count}</Box>
+                </IconButton>
               </Box>
             )}
           </Box>
@@ -342,15 +353,15 @@ const Blog = () => {
                           </Box>
                         )}
                       </Box>
+                      {user && user.id === comment.user_id && (
+                        <IconButton onClick={() => handleEditComment(comment)}>
+                          <EditIcon />
+                        </IconButton>
+                      )}
                       {user && (user.id === comment.user_id || user.id === blog.user_id) && (
-                        <>
-                          <IconButton onClick={() => handleEditComment(comment)}>
-                            <EditIcon />
-                          </IconButton>
-                          <IconButton onClick={() => handleDeleteComment(comment.id)} sx={{ color: 'red' }}>
-                            <DeleteIcon />
-                          </IconButton>
-                        </>
+                        <IconButton onClick={() => handleDeleteComment(comment.id)} sx={{ color: 'red' }}>
+                          <DeleteIcon />
+                        </IconButton>
                       )}
                     </Grid>
                   </Grid>

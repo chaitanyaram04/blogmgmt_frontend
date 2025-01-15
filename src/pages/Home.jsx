@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Container, Typography, Box, Grid } from '@mui/material';
+import { Button, Container, Typography, Box, Grid, FormControlLabel, Checkbox } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import BlogList from '../components/BlogList';
 import { useAuth } from '../context/AuthContext';
@@ -7,6 +7,7 @@ import { useAuth } from '../context/AuthContext';
 const Home = () => {
   const navigate = useNavigate();
   const { isLoggedIn } = useAuth();
+  const { name } = useAuth();
   const [userName, setUsername] = useState('');
 
   useEffect(() => {
@@ -19,7 +20,10 @@ const Home = () => {
   const handleClick = () => {
     navigate('/newblog');
   };
+
+ 
   const apiUrl = process.env.REACT_APP_API_URL;
+
   return (
     <Container>
       {isLoggedIn && (
@@ -34,11 +38,6 @@ const Home = () => {
               >
                 Add Blog
               </Button>
-            </Grid>
-            <Grid item>
-              <Typography variant="h6">
-                Welcome, {userName}!
-              </Typography>
             </Grid>
           </Grid>
         </>

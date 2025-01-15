@@ -6,16 +6,20 @@ import {
   Typography,
   CircularProgress,
   Box,
-  Alert
+  Alert,
+  FormControlLabel,
+  Checkbox
 } from '@mui/material';
 import BlogItem from './BlogItem';
 
-const BlogList = ({ url, title }) => {
+const BlogList = ({ url, title}) => {
+
   const [blogs, setBlogs] = useState([]);
   const [noblog, setNoBlog] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-
+  const [sortByDate, setSortByDate] = useState(false);
+  
   useEffect(() => {
     const fetchBlogs = async () => {
       try {
@@ -23,7 +27,12 @@ const BlogList = ({ url, title }) => {
         const response = await axios.get(url, {
           headers: { Authorization: `Bearer ${token}` }
         });
-        setBlogs(response.data);
+        let sortedBlogs = response.data;
+        console.log(sortedBlogs);
+        if (sortByDate) {
+          sortedBlogs = sortedBlogs.sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at));
+        }
+        setBlogs(sortedBlogs);
         setLoading(false);
       } catch (err) {
         if (err.response && err.response.status === 404) {
@@ -36,8 +45,11 @@ const BlogList = ({ url, title }) => {
       }
     };
     fetchBlogs();
-  }, [url]);
+  }, [url,sortByDate]);
 
+  const handleSortChange = (event) => {
+    setSortByDate(event.target.checked);
+  };
   if (loading) {
     return (
       <Box display="flex" justifyContent="center" alignItems="center" minHeight="80vh">
@@ -59,11 +71,19 @@ const BlogList = ({ url, title }) => {
       <Typography variant="h4" gutterBottom>
         {noblog ? `No ${title} found` : title}
       </Typography>
+      <Grid item xs>
+        <Box display="flex" justifyContent="flex-end">
+          <FormControlLabel
+            control={<Checkbox checked={sortByDate} onChange={handleSortChange} />}
+            label="Sort by Date"
+          />
+        </Box>
+      </Grid>
       <Grid container spacing={4}>
         {blogs.map((blog) => (
           <Grid item xs={12} sm={6} md={4} key={blog.id}>
             <BlogItem blog={blog} />
-          </Grid>
+          </Grid>   
         ))}
       </Grid>
     </Container>
