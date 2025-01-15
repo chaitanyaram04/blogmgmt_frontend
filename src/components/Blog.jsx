@@ -187,6 +187,7 @@ const Blog = () => {
       setComments([response.data, ...comments]);
       setVisibleComments([response.data, ...visibleComments].slice(0, (page + 1) * commentsPerPage));
       setComment('');
+      blog.comments_count += 1;
     } catch (err) {
       if (err.response && err.response.data.errors) {
         setError(err.response.data.errors.join(', ')); 
@@ -349,7 +350,9 @@ const Blog = () => {
                           </IconButton>
                         ) : (
                           <Box display="flex" alignItems="center">
+                             <IconButton onClick={handleLikeWithNoLogin}>
                             <ThumbUpIcon fontSize="small" /> <Box component="span" sx={{ ml: 1 }}>{comment.likes}</Box>
+                            </IconButton>
                           </Box>
                         )}
                       </Box>
