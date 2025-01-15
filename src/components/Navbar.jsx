@@ -7,7 +7,6 @@ import MenuIcon from '@mui/icons-material/Menu';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import { useState, useEffect } from 'react';
-import { useTheme } from '@mui/material';
 import { useAuth } from '../context/AuthContext';
 import { useLocation } from 'react-router-dom';
 import SearchIcon from '@mui/icons-material/Search';
@@ -15,14 +14,12 @@ import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
 import axios from 'axios';
 
-
 export default function Navbar() {
     const [searchQuery, setSearchQuery] = useState('');
     console.log(searchQuery);
     const apiUrl = process.env.REACT_APP_API_URL;
     const { isLoggedIn, setIsLoggedIn } = useAuth();
     const [anchorEl, setAnchorEl] = useState(null);
-    const theme = useTheme();
     const [username, setUsername] = useState('');
     const [searchSuggestions, setSearchSuggestions] = useState([]);
 
@@ -91,8 +88,8 @@ export default function Navbar() {
     const currentPath = location.pathname;
 
     return (
-        <Box sx={{ flexGrow: 1 }} position="sticky">
-            <AppBar position="sticky">
+        <Box sx={{ flexGrow: 1 }} position="sticky" top={0} zIndex={1000} width={100}  >
+            <AppBar >
                 <Toolbar>
                     {isLoggedIn && (
                         <>
@@ -151,7 +148,7 @@ export default function Navbar() {
                     )}
                     
                     {currentPath !== '/' ?(
-                    <Button color="inherit" sx={{ marginLeft: 49,fontSize: '1.5rem'  }} >
+                    <Button color="inherit" sx={{ marginLeft: 28,fontSize: '1.5rem'  }} >
                                 {`${getGreeting()}${username}`}
                             </Button>):(
                                  <Button color="inherit" sx={{ marginLeft: 16, fontSize: '1.5rem' }} >
@@ -160,29 +157,27 @@ export default function Navbar() {
                             )
 }
                     <Box sx={{ flexGrow: 1 }} />
+                    
                     <Autocomplete
-                                freeSolo
-                                options={searchSuggestions}
-                                getOptionLabel={(option) => option.title || ''}
-                                onInputChange={handleSearchChange}
-                                onChange={(event, value) => {
-                                    if (value && value.id) {
-                                         window.location.href = `/blog/${encodeBlogId(value.id)}`;
-                                    }
-                                }}
-                            
-                                renderInput={(params) => (
-                                    <TextField
-                                        onChange={(e) => setSearchQuery(e.target.value)}
-                                        {...params}
-                                        variant="outlined"
-                                        placeholder="Search blogs..."
-                                        size="small"
-                                        sx={{ marginLeft: 1, width: 300 }}
-                                    />
-                                )}
-                                sx={{ marginRight: 2 }}
+                        options={searchSuggestions}
+                        getOptionLabel={(option) => option.title || ''}
+                        onInputChange={handleSearchChange}
+                        onChange={(event, value) => {
+                            if (value && value.id) {
+                            window.location.href = `/blog/${encodeBlogId(value.id)}`;
+                            }
+                        }}
+                        renderInput={(params) => (
+                            <TextField
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            {...params}
+                            placeholder="Search blogs..."
+                            size="small"
+                            sx={{ marginLeft: 2, width: 300, border: '2px solid #000' }} 
                             />
+                        )}  
+                    />
+
                     
                         <IconButton 
                             color="inherit"

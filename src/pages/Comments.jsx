@@ -32,7 +32,7 @@ const Comments = () => {
     if (isLoggedIn) {
       fetchComments();
     }
-  }, [isLoggedIn]);
+  }, [isLoggedIn, apiUrl]);
 
   if (loading) {
     return (

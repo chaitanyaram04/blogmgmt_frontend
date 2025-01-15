@@ -56,7 +56,7 @@ const Blog = () => {
       }
     };
     fetchBlog();
-  }, [decodedId]);
+  }, [decodedId, apiUrl]);
 
   useEffect(() => {
     const fetchComments = async () => {
@@ -80,7 +80,7 @@ const Blog = () => {
       }
     };
     fetchComments();
-  }, [decodedId, commentsPerPage]);
+  }, [decodedId, commentsPerPage, apiUrl]);
 
   useEffect(() => {
     if (isLoggedIn) {

@@ -13,25 +13,31 @@ import NewBlog from './pages/NewBlog';
 import EditBlog from './pages/EditBlog';
 import UserBlog from './pages/UserBlog';
 import Comments from './pages/Comments';
-
+import './App.css';
 const App = () => {
   return (
     <AuthProvider>
     <BrowserRouter>
       <Navbar />
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/signup" element={<Signup />} />
-        <Route path="/signin" element={<Signin />} />
-        <Route path="/myblogs/drafts" element={<Draft />} />
-        <Route path="/myblogs/archive" element={<Archive />} />
-        <Route path="/myblogs" element={<MyBlogs />} />
-        <Route path="/newblog" element={<NewBlog />} />
-        <Route path="/blog/:id" element={<Blog />} />
-        <Route path="/editblog/:id" element={<EditBlog />} />
-        <Route path="/user/:id/blogs" element = {<UserBlog />} />
-        <Route path="/mycomments" element={<Comments />} />
-      </Routes>
+      <div className='container'>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/myblogs/drafts" element={<Draft />} />
+          <Route path="/myblogs/archive" element={<Archive />} />
+          <Route path="/myblogs" element={<MyBlogs />} />
+          <Route path="/newblog" element={<NewBlog />} />
+          <Route path="/blog/:id" element={<Blog />} />
+          <Route path="/editblog/:id" element={<EditBlog />} />
+          <Route path="/user/:id/blogs" element = {<UserBlog />} />
+          <Route path="/mycomments" element={<Comments />} />
+        </Routes>
+      </div>
+      <div className='login'>
+            <Routes>
+              <Route path="/signup" element={<Signup />} />
+              <Route path="/signin" element={<Signin />} />
+            </Routes>
+      </div>
     </BrowserRouter>
     </AuthProvider>
   );

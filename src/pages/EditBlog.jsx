@@ -57,7 +57,7 @@ const EditBlog = () => {
       fetchBlog();
     }
   }, [decodedId
-    , location.state]);
+    , location.state, apiUrl, is_deleted]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

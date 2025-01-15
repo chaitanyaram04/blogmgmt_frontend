@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
-import { Box, CircularProgress, Container, Alert, Typography, Grid } from '@mui/material';
+import { Box, CircularProgress, Container, Alert, Grid } from '@mui/material';
 import BlogItem from '../components/BlogItem'; 
 
 const UserBlog = () => {
     const apiUrl = process.env.REACT_APP_API_URL;
     const [blogs, setBlogs] = useState([]);
-    const [noblog, setNoBlog] = useState(false);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const { id } = useParams();
@@ -23,7 +22,6 @@ const UserBlog = () => {
           setLoading(false);
         } catch (err) {
           if (err.response && err.response.status === 404) {
-            setNoBlog(true);
             setLoading(false);
           } else {
             setError('There was an error fetching the drafts.');
@@ -32,7 +30,7 @@ const UserBlog = () => {
         }
       };
       fetchBlogs();
-    }, [id]);
+    }, [id, apiUrl, decodedId]);
   
     if (loading) {
       return (

@@ -7,19 +7,21 @@ import {
   CircularProgress,
   Box,
   Alert,
-  FormControlLabel,
-  Checkbox
+  TextField,
 } from '@mui/material';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import BlogItem from './BlogItem';
 
-const BlogList = ({ url, title}) => {
-
+const BlogList = ({ url, title }) => {
   const [blogs, setBlogs] = useState([]);
-  const [noblog, setNoBlog] = useState(false);
+  const [filteredBlogs, setFilteredBlogs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [sortByDate, setSortByDate] = useState(false);
-  
+  const [selectedDate, setSelectedDate] = useState(null);
+  const [date, setDate] = useState('');
+
   useEffect(() => {
     const fetchBlogs = async () => {
       try {
@@ -27,29 +29,33 @@ const BlogList = ({ url, title}) => {
         const response = await axios.get(url, {
           headers: { Authorization: `Bearer ${token}` }
         });
-        let sortedBlogs = response.data;
-        console.log(sortedBlogs);
-        if (sortByDate) {
-          sortedBlogs = sortedBlogs.sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at));
-        }
-        setBlogs(sortedBlogs);
+        setBlogs(response.data);
+        setFilteredBlogs(response.data); 
         setLoading(false);
       } catch (err) {
-        if (err.response && err.response.status === 404) {
-          setNoBlog(true);
-          setLoading(false);
-        } else {
-          setError('There was an error fetching the drafts.');
-          setLoading(false);
-        }
+        setError('There was an error fetching the blogs.');
+        setLoading(false);
       }
     };
-    fetchBlogs();
-  }, [url,sortByDate]);
 
-  const handleSortChange = (event) => {
-    setSortByDate(event.target.checked);
+    fetchBlogs();
+  }, [url]);
+
+  const handleDateChange = (date) => {
+    setSelectedDate(date);
+
+    if (date) {
+      const filtered = blogs.filter((blog) => {
+        const blogDate = new Date(blog.updated_at);
+        return blogDate.toLocaleDateString() === date.toLocaleDateString();
+      });
+      setDate(date.toLocaleDateString());
+      setFilteredBlogs(filtered);
+    } else {
+      setFilteredBlogs(blogs); 
+    }
   };
+
   if (loading) {
     return (
       <Box display="flex" justifyContent="center" alignItems="center" minHeight="80vh">
@@ -68,23 +74,40 @@ const BlogList = ({ url, title}) => {
 
   return (
     <Container sx={{ py: 4 }}>
-      <Typography variant="h4" gutterBottom>
-        {noblog ? `No ${title} found` : title}
-      </Typography>
-      <Grid item xs>
-        <Box display="flex" justifyContent="flex-end">
-          <FormControlLabel
-            control={<Checkbox checked={sortByDate} onChange={handleSortChange} />}
-            label="Sort by Date"
-          />
-        </Box>
+      <Grid container alignItems="center" spacing={2}>
+        {/* Title and Date Picker on the same line */}
+        <Grid item xs={12} sm={6}>
+          <Typography variant="h4" gutterBottom>
+            {title}
+          </Typography>
+        </Grid>
+        <Grid item xs={12} sm={6}>
+          <Box display="flex" justifyContent="flex-end">
+            <LocalizationProvider dateAdapter={AdapterDateFns}>
+              <DatePicker
+                label="Select Date"
+                value={selectedDate}
+                onChange={handleDateChange}
+                renderInput={(params) => <TextField {...params} />}
+              />
+            </LocalizationProvider>
+          </Box>
+        </Grid>
       </Grid>
       <Grid container spacing={4}>
-        {blogs.map((blog) => (
-          <Grid item xs={12} sm={6} md={4} key={blog.id}>
-            <BlogItem blog={blog} />
-          </Grid>   
-        ))}
+        {filteredBlogs.length === 0 ? (
+          <Grid item xs={12}>
+            <Typography variant="h6" align="center">
+              No blogs found for the {date}
+            </Typography>
+          </Grid>
+        ) : (
+          filteredBlogs.map((blog) => (
+            <Grid item xs={12} sm={6} md={4} key={blog.id}>
+              <BlogItem blog={blog} />
+            </Grid>
+          ))
+        )}
       </Grid>
     </Container>
   );

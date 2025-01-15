@@ -42,11 +42,9 @@ const Signin = () => {
       
       navigate(-1);
     } catch (err) {
-      if (err.response && err.response.data.errors) {
-        setError(err.response.data.errors.join(' '));
-      } else {
-        setError('An unexpected error occurred. Please try again later.');
-      }
+     
+        setError('Invalid email or password');
+      
     }
   };
 
