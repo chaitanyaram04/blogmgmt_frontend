@@ -111,28 +111,39 @@ export default function Navbar() {
                                 <MenuItem
                                     onClick={() => handleNavigation('/myblogs/drafts')}
                                     selected={currentPath === '/myblogs/drafts'}
+
                                     sx={{ fontSize: '1.1rem' }} 
+
+                                   
                                 >
                                     Drafts
                                 </MenuItem>
                                 <MenuItem
                                     onClick={() => handleNavigation('/myblogs/archive')}
                                     selected={currentPath === '/myblogs/archive'}
+
                                     sx={{ fontSize: '1.1rem' }} 
+
                                 >
                                     Archive
                                 </MenuItem>
                                 <MenuItem
                                     onClick={() => handleNavigation('/myblogs')}
                                     selected={currentPath === '/myblogs'}
+
                                     sx={{ fontSize: '1.1rem' }} 
+
+                                   
                                 >
                                     My blogs
                                 </MenuItem>
                                 <MenuItem
                                     onClick={() => handleNavigation('/mycomments')}
                                     selected={currentPath === '/mycomments'}
+
                                     sx={{ fontSize: '1.1rem' }} 
+
+                                   
                                 >
                                     My Comments
                                 </MenuItem>
