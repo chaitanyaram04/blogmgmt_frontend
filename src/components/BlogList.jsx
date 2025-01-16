@@ -16,6 +16,8 @@ import BlogItem from './BlogItem';
 
 const BlogList = ({ url, title }) => {
   const [blogs, setBlogs] = useState([]);
+  const [noblog, setNoBlog] = useState(false);
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [selectedDate, setSelectedDate] = useState(null);
@@ -38,7 +40,7 @@ const BlogList = ({ url, title }) => {
       setFilteredBlogs(blogs); 
       return;
     }
-    if(from.toLocaleDateString() > to.toLocaleDateString()){
+    else if(from.toLocaleDateString() > to.toLocaleDateString()){
       alert("Select correct from and to dates(fromDate can't be greater than toDate");
       setFromDate(null);
       setToDate(null);
@@ -63,12 +65,18 @@ const BlogList = ({ url, title }) => {
         const response = await axios.get(url, {
           headers: { Authorization: `Bearer ${token}` }
         });
+        console.log(response.data);
         setBlogs(response.data);
         setFilteredBlogs(response.data); 
         setLoading(false);
       } catch (err) {
-        setError('There was an error fetching the blogs.');
-        setLoading(false);
+        if (err.response && err.response.status === 404) {
+          setNoBlog(true);
+          setLoading(false);
+        } else {
+          setError('There was an error fetching the drafts.');
+          setLoading(false);
+        }
       }
       
     };
@@ -109,13 +117,12 @@ const BlogList = ({ url, title }) => {
 
   return (
     <Container sx={{ py: 4 }}>
+       <Typography variant="h4" gutterBottom>
+        {noblog ? `No ${title} found` : title}
+      </Typography>
+      {!noblog &&
+      <>
       <Grid container alignItems="center" spacing={2}>
-       
-        <Grid item xs={12} sm={6}>
-          <Typography variant="h4" gutterBottom>
-            {title}
-          </Typography>
-        </Grid>
         <Grid item xs={12}>
           <Box display="flex" justifyContent="space-between" alignItems="center">
             <LocalizationProvider dateAdapter={AdapterDateFns}>
@@ -140,16 +147,35 @@ const BlogList = ({ url, title }) => {
       <Grid container spacing={4}>
         {filteredBlogs.length === 0 ? (
           <Grid item xs={12}>
-            <Typography variant="h6" align="center">
-              {fromDate.toLocaleDateString() !== toDate.toLocaleDateString() ? (
-                `No blogs found between ${fromDate.toLocaleDateString()} and ${toDate.toLocaleDateString()}`
-              ) : fromDate ? (
-                `No published blogs found on ${fromDate.toLocaleDateString()}`
+          <Typography variant="h6" align="center">
+            {
+              fromDate && toDate ? (
+                fromDate.toLocaleDateString() !== toDate.toLocaleDateString() ? (
+                  title === "All blogs" ? (
+                    `No Published blogs found between ${fromDate.toLocaleDateString()} and ${toDate.toLocaleDateString()}`
+                  ) : (
+                    `No ${title} found between ${fromDate.toLocaleDateString()} and ${toDate.toLocaleDateString()}`
+                  )
+                ) : (
+                 
+                  fromDate ? (
+                    `No ${title} found on ${fromDate.toLocaleDateString()}`
+                  ) : (
+                    'No blogs found'
+                  )
+                )
               ) : (
-                'No blogs found'
-              )}
-            </Typography>
-          </Grid>
+                
+                fromDate ? (
+                  `No ${title} found on ${fromDate.toLocaleDateString()}`
+                ) : (
+                  'No blogs found'
+                )
+              )
+            }
+          </Typography>
+        </Grid>
+        
         ) : (
           filteredBlogs.map((blog) => (
             <Grid item xs={12} sm={6} md={4} key={blog.id}>
@@ -158,7 +184,8 @@ const BlogList = ({ url, title }) => {
           ))
         )}
       </Grid>
-
+      </>
+      }
     </Container>
   );
 };

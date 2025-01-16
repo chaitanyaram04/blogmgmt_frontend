@@ -17,7 +17,7 @@ const BlogItem = ({ blog }) => {
 
   return (
     <Card sx={{ height: '100%', position: 'relative' }}>
-      {blog.status === 'drafted' && (
+      {blog.status === 'drafted' && blog.is_deleted === false && (
         <Chip
           label="Draft"
           color="error"
