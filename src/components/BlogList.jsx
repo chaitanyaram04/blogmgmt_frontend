@@ -16,12 +16,46 @@ import BlogItem from './BlogItem';
 
 const BlogList = ({ url, title }) => {
   const [blogs, setBlogs] = useState([]);
-  const [filteredBlogs, setFilteredBlogs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [selectedDate, setSelectedDate] = useState(null);
   const [date, setDate] = useState('');
+  const [fromDate, setFromDate] = useState(null);
+  const [toDate, setToDate] = useState(null);
+  const [filteredBlogs, setFilteredBlogs] = useState(blogs);
 
+  const handleFromDateChange = (date) => {
+    setFromDate(date);
+  };
+
+  const handleToDateChange = (date) => {
+    setToDate(date);
+    filterBlogs(fromDate, date);
+  
+  };
+  const filterBlogs = (from, to) => {
+    if (!from || !to) {
+      setFilteredBlogs(blogs); 
+      return;
+    }
+    if(from.toLocaleDateString() > to.toLocaleDateString()){
+      alert("Select correct from and to dates(fromDate can't be greater than toDate");
+      setFromDate(null);
+      setToDate(null);
+    }else{
+      const tod = to.toLocaleDateString();
+      const fr = from.toLocaleDateString();
+      const filtered = blogs.filter((blog) => {      
+        const blogDate = new Date(blog.updated_at);
+        const blogD = blogDate.toLocaleDateString();
+        
+        return fr <= blogD && blogD <= tod ;
+      });
+
+      setFilteredBlogs(filtered);
+    }
+  
+  };
   useEffect(() => {
     const fetchBlogs = async () => {
       try {
@@ -36,6 +70,7 @@ const BlogList = ({ url, title }) => {
         setError('There was an error fetching the blogs.');
         setLoading(false);
       }
+      
     };
 
     fetchBlogs();
@@ -75,19 +110,27 @@ const BlogList = ({ url, title }) => {
   return (
     <Container sx={{ py: 4 }}>
       <Grid container alignItems="center" spacing={2}>
-        {/* Title and Date Picker on the same line */}
+       
         <Grid item xs={12} sm={6}>
           <Typography variant="h4" gutterBottom>
             {title}
           </Typography>
         </Grid>
-        <Grid item xs={12} sm={6}>
-          <Box display="flex" justifyContent="flex-end">
+        <Grid item xs={12}>
+          <Box display="flex" justifyContent="space-between" alignItems="center">
             <LocalizationProvider dateAdapter={AdapterDateFns}>
               <DatePicker
-                label="Select Date"
-                value={selectedDate}
-                onChange={handleDateChange}
+                label="From Date"
+                value={fromDate}
+                onChange={handleFromDateChange}
+                renderInput={(params) => <TextField {...params} />}
+              />
+            </LocalizationProvider>
+            <LocalizationProvider dateAdapter={AdapterDateFns}>
+              <DatePicker
+                label="To Date"
+                value={toDate}
+                onChange={handleToDateChange}
                 renderInput={(params) => <TextField {...params} />}
               />
             </LocalizationProvider>
@@ -98,7 +141,13 @@ const BlogList = ({ url, title }) => {
         {filteredBlogs.length === 0 ? (
           <Grid item xs={12}>
             <Typography variant="h6" align="center">
-              No blogs found for the {date}
+              {fromDate.toLocaleDateString() !== toDate.toLocaleDateString() ? (
+                `No blogs found between ${fromDate.toLocaleDateString()} and ${toDate.toLocaleDateString()}`
+              ) : fromDate ? (
+                `No published blogs found on ${fromDate.toLocaleDateString()}`
+              ) : (
+                'No blogs found'
+              )}
             </Typography>
           </Grid>
         ) : (
@@ -109,6 +158,7 @@ const BlogList = ({ url, title }) => {
           ))
         )}
       </Grid>
+
     </Container>
   );
 };

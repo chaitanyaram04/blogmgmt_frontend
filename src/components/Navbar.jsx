@@ -158,6 +158,7 @@ export default function Navbar() {
                     <Box sx={{ flexGrow: 1 }} />
                     
                     <Autocomplete
+                        freeSolo
                         options={searchSuggestions}
                         getOptionLabel={(option) => option.title || ''}
                         onInputChange={handleSearchChange}

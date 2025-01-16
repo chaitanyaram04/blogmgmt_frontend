@@ -71,6 +71,13 @@ const Comments = () => {
                   <Link to={`/blog/${encodeBlogId(comment.blog_id)}`}>View Blog</Link>
                 )
               }
+              // secondary={
+              //     comment.is_deleted ? (
+              //       'This blog has been deleted'
+              //     ) : (
+              //       <Link to={`/blog/${comment.blog_id}`}>View Blog</Link>
+              //     )
+              //   }
             />
           </ListItem>
         ))}
@@ -82,11 +89,5 @@ const Comments = () => {
 export default Comments;
 
 
-                        // secondary={
-                        //     comment.is_deleted ? (
-                        //       'This blog has been deleted'
-                        //     ) : (
-                        //       <Link to={`/blog/${comment.blog_id}`}>View Blog</Link>
-                        //     )
-                        //   }
+                        
                  

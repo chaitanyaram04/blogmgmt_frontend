@@ -22,6 +22,7 @@ import { useAuth } from '../context/AuthContext';
 
 const Blog = () => {
   const apiUrl = process.env.REACT_APP_API_URL;
+  const [isliked, setIsLiked] = useState(false);
   const { id } = useParams();
   const decodedId = atob(id);
   const navigate = useNavigate();
@@ -41,22 +42,37 @@ const Blog = () => {
   const [editingContent, setEditingContent] = useState('');
   const [commentUserLiked, setCommentUserLiked] = useState({});
   const [commentLikeId, setCommentLikeId] = useState({});
+  const [isHovered, setIsHovered] = useState(false); 
+
 
   useEffect(() => {
     const fetchBlog = async () => {
       try {
         const response = await axios.get(`${apiUrl}/blogs/${decodedId}`);
         console.log(response.data);
-        setBlog(response.data);
-        setUserLiked(response.data.user_liked); 
+  
+        const blogData = response.data;
+        if(isLoggedIn){
+          const user = JSON.parse(localStorage.getItem('user'));
+          const currentUserId = user.id
+          const value = blogData.likes.some(like => like.user_id === currentUserId);
+          console.log(value);
+          if(value === true){
+            setUserLiked(!userLiked)
+            setLikeId( blogData.likes.find(like => like.user_id === currentUserId).id)
+          }
+        }
+        setBlog(blogData);
         setLoading(false);
       } catch (err) {
         setError(err.response?.data?.message || 'Failed to fetch blog');
         setLoading(false);
       }
     };
+  
     fetchBlog();
   }, [decodedId, apiUrl]);
+  
 
   useEffect(() => {
     const fetchComments = async () => {
@@ -271,6 +287,16 @@ const Blog = () => {
     }
   };
 
+  const handleHoverOnLikes = () => {
+    console.log(isHovered)
+    setIsHovered(!isHovered);
+  };
+
+  const handleHoverOffLikes = () => {
+    console.log(isHovered);
+    setIsHovered(!isHovered);
+  };
+  
   if (loading) {
     return (
       <Box display="flex" justifyContent="center" alignItems="center" minHeight="80vh">
@@ -299,11 +325,13 @@ const Blog = () => {
        
           <Box>
           {isLoggedIn && (user.role === 'admin' || user.id === blog.user_id) && (
-            <IconButton onClick={handleEdit}>
+            <IconButton onClick={handleEdit} sx={{
+              '&:hover': { color: 'primary.main' }
+            }}>
               <EditIcon />
             </IconButton>)}
             {isLoggedIn && !blog.is_deleted && (user.role === 'admin' || user.id === blog.user_id) && (
-            <IconButton onClick={handleDelete} sx={{ color: 'red' }}>
+            <IconButton onClick={handleDelete} sx={{ color: 'red', '&:hover': { color: 'darkred' } }}>
               <DeleteIcon />
             </IconButton>
             )}
@@ -314,19 +342,57 @@ const Blog = () => {
         {blog.description}
       </Typography>
       {blog.status !== 'drafted' &&
-        <>
-          <Box display="flex" alignItems="center" sx={{ mt: 2 }}>
-            {isLoggedIn ? (
-              <IconButton onClick={handleLike} color={userLiked ? 'primary' : 'default'}>
-                <ThumbUpIcon /> <Box component="span" sx={{ ml: 1 }}>{blog.likes_count}</Box>
-              </IconButton>
-            ) : (
-              <Box display="flex" alignItems="center">
-                 <IconButton onClick={handleLikeWithNoLogin}>
-                <ThumbUpIcon fontSize="small" /> <Box component="span" sx={{ ml: 1 }}>{blog.likes_count}</Box>
-                </IconButton>
-              </Box>
-            )}
+       <>
+       <Box display="flex" alignItems="center" sx={{ mt: 2, position: 'relative' }}>
+         {isLoggedIn ? (
+           <IconButton
+             onClick={handleLike}
+             color={userLiked ? 'primary' : 'default'}
+             onMouseEnter={handleHoverOnLikes}
+             onMouseLeave={handleHoverOffLikes}
+           >
+             <ThumbUpIcon />
+             <Box component="span" sx={{ ml: 1 }}>{blog.likes_count}</Box>
+           </IconButton>
+         ) : (
+           <Box display="flex" alignItems="center">
+             <IconButton onClick={handleLikeWithNoLogin}>
+               <ThumbUpIcon fontSize="small" />
+               <Box component="span" sx={{ ml: 1 }}>{blog.likes_count}</Box>
+             </IconButton>
+           </Box>
+         )}
+     
+         {isHovered && (
+           <Box
+             sx={{
+               position: 'absolute',
+               background: 'rgba(0, 0, 0, 0.7)',
+               color: 'white',
+               padding: '5px',
+               borderRadius: '5px',
+               display: 'flex',
+               flexDirection: 'column',
+               maxHeight: '150px',
+               overflowY: 'auto',
+               top: '40px', // Position below the IconButton
+               left: '0', // Align with the left of the IconButton
+               zIndex: 1,
+             }}
+           >
+             {blog.all_user_names.slice(0, 5).map((name, index) => (
+               <Typography key={index} sx={{ fontSize: '12px' }}>
+                 {name}
+               </Typography>
+             ))}
+             {blog.all_user_names.length > 5 && (
+               <Typography sx={{ fontSize: '12px', color: 'gray' }}>
+                 +{blog.all_user_names.length - 5} more
+               </Typography>
+             )}
+           </Box>
+         )}
+
           </Box>
           <Box sx={{ mt: 4 }}>
             <Typography variant="h5" gutterBottom>
@@ -345,24 +411,28 @@ const Blog = () => {
                     <Grid item xs={4} container justifyContent="flex-end" alignItems="center">
                       <Box display="flex" alignItems="center">
                         {isLoggedIn ? (
-                          <IconButton onClick={() => handleLikeComment(comment.id)} color={commentUserLiked[comment.id] ? 'primary' : 'default'}>
+                          <IconButton onClick={() => handleLikeComment(comment.id)} color={commentUserLiked[comment.id] ? 'primary' : 'default'} sx={{
+                            '&:hover': { color: 'primary.main' }
+                          }}>
                             <ThumbUpIcon /> <Box component="span" sx={{ ml: 1 }}>{comment.likes}</Box>
                           </IconButton>
                         ) : (
                           <Box display="flex" alignItems="center">
-                             <IconButton onClick={handleLikeWithNoLogin}>
+                             <IconButton onClick={handleLikeWithNoLogin} sx={{
+                               '&:hover': { color: 'primary.main' }
+                             }}>
                             <ThumbUpIcon fontSize="small" /> <Box component="span" sx={{ ml: 1 }}>{comment.likes}</Box>
                             </IconButton>
                           </Box>
                         )}
                       </Box>
                       {user && user.id === comment.user_id && (
-                        <IconButton onClick={() => handleEditComment(comment)}>
+                        <IconButton onClick={() => handleEditComment(comment)} >
                           <EditIcon />
                         </IconButton>
                       )}
                       {user && (user.id === comment.user_id || user.id === blog.user_id) && (
-                        <IconButton onClick={() => handleDeleteComment(comment.id)} sx={{ color: 'red' }}>
+                        <IconButton onClick={() => handleDeleteComment(comment.id)} sx={{ color: 'red', '&:hover': { color: 'darkred' } }}>
                           <DeleteIcon />
                         </IconButton>
                       )}
