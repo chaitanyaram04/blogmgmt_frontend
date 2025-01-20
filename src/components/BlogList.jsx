@@ -20,8 +20,8 @@ const BlogList = ({ url, title }) => {
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [selectedDate, setSelectedDate] = useState(null);
-  const [date, setDate] = useState('');
+  // const [selectedDate, setSelectedDate] = useState(null);
+  // const [date, setDate] = useState('');
   const [fromDate, setFromDate] = useState(null);
   const [toDate, setToDate] = useState(null);
   const [filteredBlogs, setFilteredBlogs] = useState(blogs);
@@ -41,7 +41,7 @@ const BlogList = ({ url, title }) => {
       return;
     }
     else if(from.toLocaleDateString() > to.toLocaleDateString()){
-      alert("Select correct from and to dates(fromDate can't be greater than toDate");
+      alert("Select correct from and to dates(fromDate can't be greater than toDate)");
       setFromDate(null);
       setToDate(null);
     }else{
@@ -74,7 +74,7 @@ const BlogList = ({ url, title }) => {
           setNoBlog(true);
           setLoading(false);
         } else {
-          setError('There was an error fetching the drafts.');
+          setError('There was an error fetching the blogs.');
           setLoading(false);
         }
       }
@@ -84,20 +84,20 @@ const BlogList = ({ url, title }) => {
     fetchBlogs();
   }, [url]);
 
-  const handleDateChange = (date) => {
-    setSelectedDate(date);
+  // const handleDateChange = (date) => {
+  //   setSelectedDate(date);
 
-    if (date) {
-      const filtered = blogs.filter((blog) => {
-        const blogDate = new Date(blog.updated_at);
-        return blogDate.toLocaleDateString() === date.toLocaleDateString();
-      });
-      setDate(date.toLocaleDateString());
-      setFilteredBlogs(filtered);
-    } else {
-      setFilteredBlogs(blogs); 
-    }
-  };
+  //   if (date) {
+  //     const filtered = blogs.filter((blog) => {
+  //       const blogDate = new Date(blog.updated_at);
+  //       return blogDate.toLocaleDateString() === date.toLocaleDateString();
+  //     });
+  //     setDate(date.toLocaleDateString());
+  //     setFilteredBlogs(filtered);
+  //   } else {
+  //     setFilteredBlogs(blogs); 
+  //   }
+  // };
 
   if (loading) {
     return (
@@ -149,7 +149,7 @@ const BlogList = ({ url, title }) => {
           <Grid item xs={12}>
           <Typography variant="h6" align="center">
             {
-              fromDate && toDate ? (
+              fromDate && toDate && (
                 fromDate.toLocaleDateString() !== toDate.toLocaleDateString() ? (
                   title === "All blogs" ? (
                     `No Published blogs found between ${fromDate.toLocaleDateString()} and ${toDate.toLocaleDateString()}`
@@ -157,19 +157,11 @@ const BlogList = ({ url, title }) => {
                     `No ${title} found between ${fromDate.toLocaleDateString()} and ${toDate.toLocaleDateString()}`
                   )
                 ) : (
-                 
-                  fromDate ? (
-                    `No ${title} found on ${fromDate.toLocaleDateString()}`
+                    title === "All blogs" ? (
+                    `No Published blogs found on ${fromDate.toLocaleDateString()}`
                   ) : (
-                    'No blogs found'
+                    `No ${title} found on ${fromDate.toLocaleDateString()}`
                   )
-                )
-              ) : (
-                
-                fromDate ? (
-                  `No ${title} found on ${fromDate.toLocaleDateString()}`
-                ) : (
-                  'No blogs found'
                 )
               )
             }
