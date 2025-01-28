@@ -40,9 +40,15 @@ const Signin = () => {
       axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
       setIsLoggedIn(true);
       
-      navigate(-1);
-    } catch (err) {
      
+      const redirectUrl = sessionStorage.getItem('redirectTo');
+      if (redirectUrl) {
+          sessionStorage.removeItem('redirectTo'); 
+          window.location.href = redirectUrl; 
+      } else {
+          window.location.href = '/';
+      }
+    } catch (err) {
         setError('Invalid email or password');
       
     }

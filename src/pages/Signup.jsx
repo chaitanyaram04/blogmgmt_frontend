@@ -59,7 +59,13 @@ const Signup = () => {
      localStorage.setItem('user', JSON.stringify(user));
      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
      setIsLoggedIn(true);
-     navigate(-2);
+     const redirectUrl = sessionStorage.getItem('redirectTo');
+     if (redirectUrl) {
+         sessionStorage.removeItem('redirectTo'); 
+         window.location.href = redirectUrl; 
+     } else {
+         window.location.href = '/';
+     }
    } catch (err) {
       if (err.response && err.response.data.errors) {
         setError(err.response.data.errors.join(', ')); 

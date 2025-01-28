@@ -13,6 +13,8 @@ import NewBlog from './pages/NewBlog';
 import EditBlog from './pages/EditBlog';
 import UserBlog from './pages/UserBlog';
 import Comments from './pages/Comments';
+import NoPage from './pages/NoPage';
+import MyProfile from './pages/MyProfile';
 import './App.css';
 const App = () => {
   return (
@@ -20,23 +22,22 @@ const App = () => {
       <BrowserRouter>
         <Navbar />
         <div className='container'>
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/myblogs/drafts" element={<Draft />} />
-            <Route path="/myblogs/archive" element={<Archive />} />
-            <Route path="/myblogs" element={<MyBlogs />} />
-            <Route path="/newblog" element={<NewBlog />} />
-            <Route path="/blog/:id" element={<Blog />} />
-            <Route path="/editblog/:id" element={<EditBlog />} />
-            <Route path="/user/:id/blogs" element = {<UserBlog />} />
-            <Route path="/mycomments" element={<Comments />} />
-          </Routes>
-        </div>
-        <div className='login'>
-              <Routes>
-                <Route path="/signup" element={<Signup />} />
-                <Route path="/signin" element={<Signin />} />
-              </Routes>
+        <Routes >
+          <Route path="/" element={<Home />} />
+          <Route path="/myblogs/drafts" element={<Draft />} />
+          <Route path="/myblogs/archive" element={<Archive />} />
+          <Route path="/myblogs" element={<MyBlogs />} />
+          <Route path="/newblog" element={<NewBlog />} />
+          <Route path="/blog/:id" element={<Blog />} />
+          <Route path="/editblog/:id" element={<EditBlog />} />
+          <Route path="/user/:id/blogs" element={<UserBlog />} />
+          <Route path="/mycomments" element={<Comments />} />
+          <Route path="/myprofile" element ={<MyProfile/>}/>
+          <Route className="login" path="/signup" element={<Signup />} />
+          <Route className="login" path="/signin" element={<Signin />} />
+
+          <Route path="*" element={<NoPage />} />
+        </Routes>
         </div>
       </BrowserRouter>
     </AuthProvider>

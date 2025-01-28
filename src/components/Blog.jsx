@@ -313,7 +313,8 @@ const Blog = () => {
     );
   }
   const handleLikeWithNoLogin = () => {
-    navigate('/signin');
+    sessionStorage.setItem('redirectTo', window.location.href);
+    window.location.href = '/signin';
   }
 
   return (
@@ -324,7 +325,7 @@ const Blog = () => {
         </Typography>
        
           <Box>
-          {isLoggedIn && (user.role === 'admin' || user.id === blog.user_id) && (
+          {isLoggedIn &&  user.id === blog.user_id && (
             <IconButton onClick={handleEdit} sx={{
               '&:hover': { color: 'primary.main' }
             }}>

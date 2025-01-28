@@ -47,7 +47,24 @@ export default function Navbar() {
         return btoa(id); 
       };
    
+    const handleNavigate = () =>{
+        if(sessionStorage.getItem('redirectTo')){
+            window.location.href = '/signin';
+        }
+        else{
+            sessionStorage.setItem('redirectTo', window.location.href);
+            window.location.href = '/signin';
+        }
+    }
 
+    const signup = () => {
+        if(sessionStorage.getItem('redirectTo')){
+            window.location.href = '/signup';
+        }else{
+            sessionStorage.setItem('redirectTo', window.location.href);
+            window.location.href = '/signup';
+        }
+    }
     
     const getGreeting = () => {
         const hours = new Date().getHours();
@@ -92,7 +109,6 @@ export default function Navbar() {
                 <Toolbar>
                     {isLoggedIn && (
                         <>
-                           
                             <IconButton
                                 edge="start"
                                 color="inherit"
@@ -147,6 +163,16 @@ export default function Navbar() {
                                 >
                                     My Comments
                                 </MenuItem>
+                                <MenuItem
+                                    onClick={() => handleNavigation('/myprofile')}
+                                    selected={currentPath === '/myprofile'}
+
+                                    sx={{ fontSize: '1.1rem' }} 
+
+                                   
+                                >
+                                    My Profile
+                                </MenuItem>
                             </Menu>
                            
                         </>
@@ -194,10 +220,10 @@ export default function Navbar() {
                     ) : (
                         <>
                             {currentPath !== '/signup' && (
-                                <Button color="inherit" onClick={() => handleNavigation('/signup')}>Signup</Button>
+                                <Button color="inherit" onClick={ signup}>Signup</Button>
                             )}
                             {currentPath !== '/signin' && (
-                                <Button color="inherit" onClick={() => handleNavigation('/signin')}>Signin</Button>
+                                <Button color="inherit" onClick={handleNavigate}>Signin</Button>
                             )}
                         </>
                     )}
